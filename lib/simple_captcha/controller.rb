@@ -13,13 +13,15 @@ module SimpleCaptcha #:nodoc
     #   flash[:notice] = "captcha did not match"
     #   redirect_to :action => "myaction"
     #  end
-    def simple_captcha_valid?
+    def simple_captcha_valid?(object = nil)
       return true if SimpleCaptcha.always_pass
       return @_simple_captcha_result unless @_simple_captcha_result.nil?
 
-      if params[:captcha]
-        data = SimpleCaptcha::Utils::simple_captcha_value(params[:captcha_key] || session[:captcha])
-        result = data == params[:captcha].delete(" ").upcase
+      captcha_params = object && params[object] || params
+
+      if captcha_params[:captcha]
+        data = SimpleCaptcha::Utils::simple_captcha_value(captcha_params[:captcha_key] || session[:captcha])
+        result = data == captcha_params[:captcha].delete(" ").upcase
         SimpleCaptcha::Utils::simple_captcha_passed!(session[:captcha]) if result
         @_simple_captcha_result = result
         result
